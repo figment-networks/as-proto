@@ -1,7 +1,4 @@
-import {
-  CodeGeneratorRequest,
-  CodeGeneratorResponse,
-} from "google-protobuf/google/protobuf/compiler/plugin_pb";
+import { CodeGeneratorRequest, CodeGeneratorResponse, } from "google-protobuf/google/protobuf/compiler/plugin_pb";
 import { GeneratorContext } from "./generator-context";
 import { generateFile } from "./generate/file";
 import { getPathWithoutProto } from "./names";
@@ -10,7 +7,7 @@ import prettier from "prettier";
 import * as fs from "fs";
 import * as assert from "assert";
 
-fs.readFile(process.stdin.fd, (err, input) => {
+fs.readFile("./code_generator_request.pb.bin", (err, input) => {
 
   if (err !== null) {
     console.log("An error occurred in as-proto generator plugin.");
@@ -23,9 +20,7 @@ fs.readFile(process.stdin.fd, (err, input) => {
     const codeGenResponse = new CodeGeneratorResponse();
     const generatorContext = new GeneratorContext();
 
-    codeGenResponse.setSupportedFeatures(
-      CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL
-    );
+    codeGenResponse.setSupportedFeatures(CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL);
 
     for (const fileDescriptor of codeGenRequest.getProtoFileList()) {
       const fileDescriptorName = fileDescriptor.getName();
@@ -34,19 +29,14 @@ fs.readFile(process.stdin.fd, (err, input) => {
     }
 
     for (const fileName of codeGenRequest.getFileToGenerateList()) {
-      const fileDescriptor =
-        generatorContext.getFileDescriptorByFileName(fileName);
+      const fileDescriptor = generatorContext.getFileDescriptorByFileName(fileName);
       assert.ok(fileDescriptor);
 
-      const generatedCode = generateFile(
-        fileDescriptor,
-        new FileContext(generatorContext, fileDescriptor)
-      );
+      const generatedCode = generateFile(fileDescriptor, new FileContext(generatorContext, fileDescriptor));
       let formattedCode = generatedCode;
+
       try {
-        formattedCode = prettier.format(generatedCode, {
-          parser: "typescript",
-        });
+        formattedCode = prettier.format(generatedCode, { parser: "typescript", });
       } catch (error) {
         console.error(error);
       }

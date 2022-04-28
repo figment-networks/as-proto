@@ -1,5 +1,6 @@
 import { FileDescriptorProto } from "google-protobuf/google/protobuf/descriptor_pb";
 import { GeneratorContext } from "./generator-context";
+import { getRelativeImport, isRelativeImport } from "./names";
 
 export class FileContext {
   private readonly generatorContext: GeneratorContext;
@@ -29,19 +30,44 @@ export class FileContext {
     const [importName, ...importNamespace] = importNamePath.split(".");
 
     if (!importName) {
-      throw new Error(
-        `Cannot register empty import of ${importNamePath} from ${importPath}.`
-      );
+      throw new Error(`Cannot register empty import of ${importNamePath} from ${importPath}.`);
     }
-    const importNames =
-      this.registeredImports.get(importPath) || new Map<string, string>();
-    const uniqueImportName =
-      importNames.get(importName) || this.getUniqueName(importName);
+
+    const importNames = this.registeredImports.get(importPath) || new Map<string, string>();
+    const uniqueImportName =  importNames.get(importName) || this.getUniqueName(importName);
 
     importNames.set(importName, uniqueImportName);
-    this.registeredImports.set(importPath, importNames);
+
+    this.registeredImports.set(this.getRelativeImportPath(importPath), importNames);
 
     return [uniqueImportName, ...importNamespace].join(".");
+  }
+
+  getRelativeImportPath(importPath: string): string {
+    if (isRelativeImport(importPath)) {
+      const fileDescriptorPaths = (this.fileDescriptor.getName() || "").split('/');
+      const importPaths = importPath.split("/");
+      const returnPath = importPath.split("/");
+      let done = false;
+
+      if (importPaths[0] == ".") {
+        importPaths.shift();
+        returnPath.shift();
+      }
+
+      for (let i = 0; i < fileDescriptorPaths.length -1; i++) {
+        if (fileDescriptorPaths[i] === importPaths[i] && !done) {
+          returnPath.shift();
+        } else {
+          returnPath.unshift("..");
+          done = true;
+        }
+      }
+
+      return getRelativeImport(returnPath.join("/"));
+    }
+
+    return importPath;
   }
 
   registerDefinition(definitionNamePath: string): string {
