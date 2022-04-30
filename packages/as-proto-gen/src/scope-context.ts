@@ -1,5 +1,5 @@
-import { FileContext } from "./file-context";
-import { isReservedKeyword } from "./reserved-keywords";
+import { FileContext } from './file-context';
+import { isReservedKeyword } from './reserved-keywords';
 
 export class ScopeContext {
   private readonly fileContext: FileContext;

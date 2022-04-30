@@ -1,17 +1,13 @@
-import {
-  CodeGeneratorRequest,
-  CodeGeneratorResponse,
-} from "google-protobuf/google/protobuf/compiler/plugin_pb";
-import { GeneratorContext } from "./generator-context";
-import { generateFile } from "./generate/file";
-import { getPathWithoutProto } from "./names";
-import { FileContext } from "./file-context";
-import prettier from "prettier";
-import * as fs from "fs";
-import * as assert from "assert";
+import * as assert from 'assert';
+import * as fs from 'fs';
+import { CodeGeneratorRequest, CodeGeneratorResponse } from 'google-protobuf/google/protobuf/compiler/plugin_pb';
+
+import { FileContext } from './file-context';
+import { addFile, processFile } from './generate/file';
+import { GeneratorContext } from './generator-context';
+import { getPathWithoutProto } from './names';
 
 fs.readFile(process.stdin.fd, (err, input) => {
-
   if (err !== null) {
     console.log("An error occurred in as-proto generator plugin.");
     console.error(err);
@@ -23,9 +19,7 @@ fs.readFile(process.stdin.fd, (err, input) => {
     const codeGenResponse = new CodeGeneratorResponse();
     const generatorContext = new GeneratorContext();
 
-    codeGenResponse.setSupportedFeatures(
-      CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL
-    );
+    codeGenResponse.setSupportedFeatures(CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL);
 
     for (const fileDescriptor of codeGenRequest.getProtoFileList()) {
       const fileDescriptorName = fileDescriptor.getName();
@@ -33,28 +27,13 @@ fs.readFile(process.stdin.fd, (err, input) => {
       generatorContext.registerFile(fileDescriptor);
     }
 
+    const codePart = new Map<string, string[]>();
     for (const fileName of codeGenRequest.getFileToGenerateList()) {
-      const fileDescriptor =
-        generatorContext.getFileDescriptorByFileName(fileName);
+      const fileDescriptor = generatorContext.getFileDescriptorByFileName(fileName);
       assert.ok(fileDescriptor);
 
-      const generatedCode = generateFile(
-        fileDescriptor,
-        new FileContext(generatorContext, fileDescriptor)
-      );
-      let formattedCode = generatedCode;
-      try {
-        formattedCode = prettier.format(generatedCode, {
-          parser: "typescript",
-        });
-      } catch (error) {
-        console.error(error);
-      }
-
-      const outputFile = new CodeGeneratorResponse.File();
-      outputFile.setName(getPathWithoutProto(fileName) + ".ts");
-      outputFile.setContent(formattedCode);
-      codeGenResponse.addFile(outputFile);
+      const generatedCode = processFile(fileDescriptor, new FileContext(generatorContext, fileDescriptor));
+      addFile(getPathWithoutProto(fileName) + ".ts", generatedCode, codeGenResponse);
     }
 
     process.stdout.write(Buffer.from(codeGenResponse.serializeBinary().buffer));

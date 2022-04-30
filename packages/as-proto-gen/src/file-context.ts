@@ -5,15 +5,11 @@ import { getRelativeImport, isRelativeImport } from "./names";
 export class FileContext {
   private readonly generatorContext: GeneratorContext;
   private readonly fileDescriptor: FileDescriptorProto;
-  private readonly registeredImports: Map<string, Map<string, string>> =
-    new Map();
+  private readonly registeredImports: Map<string, Map<string, string>> = new Map();
   private readonly registeredDefinitions: Set<string> = new Set();
   private readonly importNames: Set<string> = new Set();
 
-  constructor(
-    generatorContext: GeneratorContext,
-    fileDescriptor: FileDescriptorProto
-  ) {
+  constructor(generatorContext: GeneratorContext, fileDescriptor: FileDescriptorProto) {
     this.generatorContext = generatorContext;
     this.fileDescriptor = fileDescriptor;
   }
@@ -34,7 +30,7 @@ export class FileContext {
     }
 
     const importNames = this.registeredImports.get(importPath) || new Map<string, string>();
-    const uniqueImportName =  importNames.get(importName) || this.getUniqueName(importName);
+    const uniqueImportName = importNames.get(importName) || this.getUniqueName(importName);
 
     importNames.set(importName, uniqueImportName);
 
@@ -45,7 +41,7 @@ export class FileContext {
 
   getRelativeImportPath(importPath: string): string {
     if (isRelativeImport(importPath)) {
-      const fileDescriptorPaths = (this.fileDescriptor.getName() || "").split('/');
+      const fileDescriptorPaths = (this.fileDescriptor.getName() || "").split("/");
       const importPaths = importPath.split("/");
       const returnPath = importPath.split("/");
       let done = false;
@@ -55,7 +51,7 @@ export class FileContext {
         returnPath.shift();
       }
 
-      for (let i = 0; i < fileDescriptorPaths.length -1; i++) {
+      for (let i = 0; i < fileDescriptorPaths.length - 1; i++) {
         if (fileDescriptorPaths[i] === importPaths[i] && !done) {
           returnPath.shift();
         } else {
@@ -100,15 +96,9 @@ export class FileContext {
       const importFields: string[] = [];
       for (const [importName, uniqueImportName] of importNames) {
         const isAliased = importName !== uniqueImportName;
-        importFields.push(
-          isAliased ? `${importName} as ${uniqueImportName}` : `${importName}`
-        );
+        importFields.push(isAliased ? `${importName} as ${uniqueImportName}` : `${importName}`);
       }
-      importLines.push(
-        `import { ${importFields.join(", ")} } from ${JSON.stringify(
-          importPath
-        )};`
-      );
+      importLines.push(`import { ${importFields.join(", ")} } from ${JSON.stringify(importPath)};`);
     }
 
     return importLines.join("\n");

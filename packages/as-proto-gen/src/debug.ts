@@ -1,14 +1,13 @@
-import { CodeGeneratorRequest, CodeGeneratorResponse, } from "google-protobuf/google/protobuf/compiler/plugin_pb";
-import { GeneratorContext } from "./generator-context";
-import { generateFile } from "./generate/file";
-import { getPathWithoutProto } from "./names";
-import { FileContext } from "./file-context";
-import prettier from "prettier";
-import * as fs from "fs";
 import * as assert from "assert";
+import * as fs from "fs";
+import { CodeGeneratorRequest, CodeGeneratorResponse } from "google-protobuf/google/protobuf/compiler/plugin_pb";
+
+import { FileContext } from "./file-context";
+import { processFile, addFile, generateExport } from "./generate/file";
+import { GeneratorContext } from "./generator-context";
+import { getPathWithoutProto } from "./names";
 
 fs.readFile("./code_generator_request.pb.bin", (err, input) => {
-
   if (err !== null) {
     console.log("An error occurred in as-proto generator plugin.");
     console.error(err);
@@ -28,24 +27,16 @@ fs.readFile("./code_generator_request.pb.bin", (err, input) => {
       generatorContext.registerFile(fileDescriptor);
     }
 
+    const codePart = new Map<string, string[]>();
     for (const fileName of codeGenRequest.getFileToGenerateList()) {
       const fileDescriptor = generatorContext.getFileDescriptorByFileName(fileName);
       assert.ok(fileDescriptor);
 
-      const generatedCode = generateFile(fileDescriptor, new FileContext(generatorContext, fileDescriptor));
-      let formattedCode = generatedCode;
-
-      try {
-        formattedCode = prettier.format(generatedCode, { parser: "typescript", });
-      } catch (error) {
-        console.error(error);
-      }
-
-      const outputFile = new CodeGeneratorResponse.File();
-      outputFile.setName(getPathWithoutProto(fileName) + ".ts");
-      outputFile.setContent(formattedCode);
-      codeGenResponse.addFile(outputFile);
+      const generatedCode = processFile(fileDescriptor, new FileContext(generatorContext, fileDescriptor));
+      addFile(getPathWithoutProto(fileName) + ".ts", generatedCode, codeGenResponse);
     }
+
+    generateExport(codeGenRequest, generatorContext);
 
     process.stdout.write(Buffer.from(codeGenResponse.serializeBinary().buffer));
   } catch (error) {
