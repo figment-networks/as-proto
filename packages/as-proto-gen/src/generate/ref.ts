@@ -19,7 +19,6 @@ export function generateRef(fieldDescriptor: FieldDescriptorProto, fileContext: 
   } else {
     const fileName = fileDescriptor.getName();
     assert.ok(fileName);
-
     return fileContext.registerImport(typeName, getRelativeImport(getPathWithoutProto(fileName)));
   }
 }

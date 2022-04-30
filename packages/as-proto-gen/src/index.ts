@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { CodeGeneratorRequest, CodeGeneratorResponse } from 'google-protobuf/google/protobuf/compiler/plugin_pb';
 
 import { FileContext } from './file-context';
-import { addFile, processFile } from './generate/file';
+import { processFile, addFile, generateExport } from "./generate/file";
 import { GeneratorContext } from './generator-context';
 import { getPathWithoutProto } from './names';
 
@@ -19,6 +19,8 @@ fs.readFile(process.stdin.fd, (err, input) => {
     const codeGenResponse = new CodeGeneratorResponse();
     const generatorContext = new GeneratorContext();
 
+    const PROTOC_VERSION = codeGenRequest.getCompilerVersion()?.toArray().slice(0,3).join(".");
+
     codeGenResponse.setSupportedFeatures(CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL);
 
     for (const fileDescriptor of codeGenRequest.getProtoFileList()) {
@@ -33,8 +35,10 @@ fs.readFile(process.stdin.fd, (err, input) => {
       assert.ok(fileDescriptor);
 
       const generatedCode = processFile(fileDescriptor, new FileContext(generatorContext, fileDescriptor));
-      addFile(getPathWithoutProto(fileName) + ".ts", generatedCode, codeGenResponse);
+      addFile(getPathWithoutProto(fileName) + ".ts", generatedCode, codeGenResponse, PROTOC_VERSION as string);
     }
+
+    generateExport(codeGenRequest, generatorContext);
 
     process.stdout.write(Buffer.from(codeGenResponse.serializeBinary().buffer));
   } catch (error) {

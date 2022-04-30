@@ -23,6 +23,8 @@ export class FileContext {
   }
 
   registerImport(importNamePath: string, importPath: string): string {
+    [importNamePath, importPath] = this.getRelativeImportPath(importNamePath, importPath);
+
     const [importName, ...importNamespace] = importNamePath.split(".");
 
     if (!importName) {
@@ -33,14 +35,14 @@ export class FileContext {
     const uniqueImportName = importNames.get(importName) || this.getUniqueName(importName);
 
     importNames.set(importName, uniqueImportName);
-
-    this.registeredImports.set(this.getRelativeImportPath(importPath), importNames);
+    this.registeredImports.set(importPath, importNames);
 
     return [uniqueImportName, ...importNamespace].join(".");
   }
 
-  getRelativeImportPath(importPath: string): string {
+  getRelativeImportPath(importNamePath: string, importPath: string): [string, string] {
     if (isRelativeImport(importPath)) {
+      const importName = importNamePath.split('.');
       const fileDescriptorPaths = (this.fileDescriptor.getName() || "").split("/");
       const importPaths = importPath.split("/");
       const returnPath = importPath.split("/");
@@ -54,16 +56,17 @@ export class FileContext {
       for (let i = 0; i < fileDescriptorPaths.length - 1; i++) {
         if (fileDescriptorPaths[i] === importPaths[i] && !done) {
           returnPath.shift();
+          importName.shift();
         } else {
           returnPath.unshift("..");
           done = true;
         }
       }
 
-      return getRelativeImport(returnPath.join("/"));
+      return  [importName.join('.'), getRelativeImport(returnPath.slice(0, fileDescriptorPaths.length).join("/"))];
     }
 
-    return importPath;
+    return [importNamePath, importPath];
   }
 
   registerDefinition(definitionNamePath: string): string {
