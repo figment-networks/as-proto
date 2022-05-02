@@ -38,7 +38,7 @@ fs.readFile("./code_generator_request.pb.bin", (err, input) => {
       addFile(getPathWithoutProto(fileName) + ".ts", generatedCode, codeGenResponse, PROTOC_VERSION as string);
     }
 
-    generateExport(codeGenRequest, generatorContext);
+    generateExport(codeGenRequest, codeGenResponse, generatorContext, PROTOC_VERSION as string);
 
     process.stdout.write(Buffer.from(codeGenResponse.serializeBinary().buffer));
   } catch (error) {

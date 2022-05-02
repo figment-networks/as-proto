@@ -47,6 +47,7 @@ export class FileContext {
       const importPaths = importPath.split("/");
       const returnPath = importPath.split("/");
       let done = false;
+      let sliceLen = 1;
 
       if (importPaths[0] == ".") {
         importPaths.shift();
@@ -59,11 +60,12 @@ export class FileContext {
           importName.shift();
         } else {
           returnPath.unshift("..");
+          sliceLen++;
           done = true;
         }
       }
 
-      return  [importName.join('.'), getRelativeImport(returnPath.slice(0, fileDescriptorPaths.length).join("/"))];
+      return  [importName.join('.'), getRelativeImport(returnPath.slice(0, sliceLen).join("/"))];
     }
 
     return [importNamePath, importPath];
