@@ -1,9 +1,9 @@
-import * as assert from 'assert';
-import { DescriptorProto, FieldDescriptorProto } from 'google-protobuf/google/protobuf/descriptor_pb';
+import * as assert from "assert";
+import { DescriptorProto, FieldDescriptorProto } from "google-protobuf/google/protobuf/descriptor_pb";
 
-import { FileContext } from '../file-context';
-import { ScopeContext } from '../scope-context';
-import { generateEnum } from './enum';
+import { FileContext } from "../file-context";
+import { ScopeContext } from "../scope-context";
+import { generateEnum } from "./enum";
 import {
   generateFieldDecodeInstruction,
   generateFieldDefaultValue,
@@ -11,7 +11,7 @@ import {
   generateFieldName,
   generateFieldType,
   isManagedFieldType,
-} from './field';
+} from "./field";
 
 export function generateMessage(messageDescriptor: DescriptorProto, fileContext: FileContext, messageNamespace?: string): string {
   const messageName = messageDescriptor.getName();

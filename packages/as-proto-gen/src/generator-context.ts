@@ -1,6 +1,6 @@
-import { DescriptorProto, EnumDescriptorProto, FileDescriptorProto } from 'google-protobuf/google/protobuf/descriptor_pb';
+import { DescriptorProto, EnumDescriptorProto, FileDescriptorProto } from "google-protobuf/google/protobuf/descriptor_pb";
 
-import { getFieldTypeName } from './names';
+import { getFieldTypeName } from "./names";
 
 type FileName = string;
 type FieldTypeName = string;

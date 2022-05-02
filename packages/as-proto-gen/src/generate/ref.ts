@@ -1,8 +1,8 @@
-import * as assert from 'assert';
-import { FieldDescriptorProto } from 'google-protobuf/google/protobuf/descriptor_pb';
+import * as assert from "assert";
+import { FieldDescriptorProto } from "google-protobuf/google/protobuf/descriptor_pb";
 
-import { FileContext } from '../file-context';
-import { getPathWithoutProto, getRelativeImport, getTypeName } from '../names';
+import { FileContext } from "../file-context";
+import { getPathWithoutProto, getRelativeImport, getTypeName } from "../names";
 
 export function generateRef(fieldDescriptor: FieldDescriptorProto, fileContext: FileContext): string {
   const fieldTypeName = fieldDescriptor.getTypeName();

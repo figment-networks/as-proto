@@ -77,8 +77,8 @@ export function generateExport(
       }
     }
 
-    for (let i = 0; i < filePath.length -1; i++) {
-      const path = "./" + filePath.slice(0, i+1).join("/");
+    for (let i = 0; i < filePath.length - 1; i++) {
+      const path = "./" + filePath.slice(0, i + 1).join("/");
       const pkg = packages.at(i) as string;
       if (indexes.has(path)) {
         indexes.get(path)?.add(pkg);
@@ -104,11 +104,11 @@ export function generateExport(
     pkgs.forEach((target) => {
       code += `import * as ${target} from './_export';\n`;
     });
-    code += `export { ${[...pkgs].join(', ')} };`
+    code += `export { ${[...pkgs].join(", ")} };`;
     addFile(filename, code, codeGenResponse, protoc_version);
 
     if (path.split("/").length == 2) {
-      topIndex += `export * from '${path}';\n`
+      topIndex += `export * from '${path}';\n`;
     }
   });
 

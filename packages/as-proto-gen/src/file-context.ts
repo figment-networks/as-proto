@@ -42,7 +42,7 @@ export class FileContext {
 
   getRelativeImportPath(importNamePath: string, importPath: string): [string, string] {
     if (isRelativeImport(importPath)) {
-      const importName = importNamePath.split('.');
+      const importName = importNamePath.split(".");
       const fileDescriptorPaths = (this.fileDescriptor.getName() || "").split("/");
       const importPaths = importPath.split("/");
       const returnPath = importPath.split("/");
@@ -65,7 +65,7 @@ export class FileContext {
         }
       }
 
-      return  [importName.join('.'), getRelativeImport(returnPath.slice(0, sliceLen).join("/"))];
+      return [importName.join("."), getRelativeImport(returnPath.slice(0, sliceLen).join("/"))];
     }
 
     return [importNamePath, importPath];

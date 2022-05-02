@@ -1,11 +1,11 @@
-import * as assert from 'assert';
-import * as fs from 'fs';
-import { CodeGeneratorRequest, CodeGeneratorResponse } from 'google-protobuf/google/protobuf/compiler/plugin_pb';
+import * as assert from "assert";
+import * as fs from "fs";
+import { CodeGeneratorRequest, CodeGeneratorResponse } from "google-protobuf/google/protobuf/compiler/plugin_pb";
 
-import { FileContext } from './file-context';
+import { FileContext } from "./file-context";
 import { processFile, addFile, generateExport } from "./generate/file";
-import { GeneratorContext } from './generator-context';
-import { getPathWithoutProto } from './names';
+import { GeneratorContext } from "./generator-context";
+import { getPathWithoutProto } from "./names";
 
 fs.readFile(process.stdin.fd, (err, input) => {
   if (err !== null) {
@@ -19,7 +19,7 @@ fs.readFile(process.stdin.fd, (err, input) => {
     const codeGenResponse = new CodeGeneratorResponse();
     const generatorContext = new GeneratorContext();
 
-    const PROTOC_VERSION = codeGenRequest.getCompilerVersion()?.toArray().slice(0,3).join(".");
+    const PROTOC_VERSION = codeGenRequest.getCompilerVersion()?.toArray().slice(0, 3).join(".");
 
     codeGenResponse.setSupportedFeatures(CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL);
 

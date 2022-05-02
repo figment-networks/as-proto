@@ -19,7 +19,7 @@ fs.readFile("./code_generator_request.pb.bin", (err, input) => {
     const codeGenResponse = new CodeGeneratorResponse();
     const generatorContext = new GeneratorContext();
 
-    const PROTOC_VERSION = codeGenRequest.getCompilerVersion()?.toArray().slice(0,3).join(".");
+    const PROTOC_VERSION = codeGenRequest.getCompilerVersion()?.toArray().slice(0, 3).join(".");
 
     codeGenResponse.setSupportedFeatures(CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL);
 
