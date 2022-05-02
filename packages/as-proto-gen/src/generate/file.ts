@@ -97,6 +97,7 @@ export function generateExport(
     addFile(filename, code, codeGenResponse, protoc_version);
   });
 
+  let topIndex = "";
   indexes.forEach((pkgs: Set<String>, path: string) => {
     const filename = path + "/index.ts";
     let code: string = "";
@@ -105,5 +106,11 @@ export function generateExport(
     });
     code += `export { ${[...pkgs].join(', ')} };`
     addFile(filename, code, codeGenResponse, protoc_version);
+
+    if (path.split("/").length == 2) {
+      topIndex += `export * from '${path}';\n`
+    }
   });
+
+  addFile("./index.ts", topIndex, codeGenResponse, protoc_version);
 }
